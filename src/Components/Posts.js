@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import AddPost from "./AddPost";
 
 const Posts = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -11,8 +12,8 @@ const Posts = () => {
     const fetchedPostData = async () => {
       setIsLoading(true);
       try {
-        const responsePost = await fetch("https://dummyjson.com/posts");
-        const responseUser = await fetch("https://dummyjson.com/users");
+        const responsePost = await fetch("https://dummyjson.com/posts?limit=150");
+        const responseUser = await fetch("https://dummyjson.com/users?limit=100");
         const data = await responsePost.json();
         const usersRes = await responseUser.json();
         const users = usersRes.users || [];
@@ -40,6 +41,26 @@ const Posts = () => {
 
   const navigateCommentBox = (post) => {
     navigateComments(`/post/post:${post.id}`, { state: { post } });
+  };
+
+  const onAddPost = async (newPostDetails) => {
+    console.log("post details:",newPostDetails)
+    try {
+      const responseNewPost = await fetch("https://dummyjson.com/posts/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newPostDetails.title,
+          body: newPostDetails.body,
+          userId: 5,
+        }),
+      });
+
+      const newPostData = await responseNewPost.json();
+      setPosts([...posts, newPostData]);
+    } catch (error) {
+      console.log("Error while adding post.... ", error);
+    }
   };
 
   if (isLoading) {
@@ -93,6 +114,9 @@ const Posts = () => {
             </p>
           </div>
         ))}
+      </div>
+      <div>
+        <AddPost onAddPost={onAddPost} />
       </div>
     </div>
   );
