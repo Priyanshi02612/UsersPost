@@ -2,11 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaUser } from "react-icons/fa6";
 import { FaComment } from "react-icons/fa6";
+import AddComment from "./AddComment";
 
 const Comments = () => {
   const [commentsData, setCommentsData] = useState([]);
-  const [newComment, setNewComment] = useState("");
-  const [newUserName, setNewUserName] = useState("");
   const [loading, setLoading] = useState(true);
   const navigatePost = useNavigate();
   const location = useLocation();
@@ -55,21 +54,25 @@ const Comments = () => {
     );
   }
 
-  const addComment = () => {
-    if (newComment !== "" && newUserName !== "") {
-      const updatedComments = [
-        ...commentsData,
-        {
-          body: newComment,
-          user: {
-            username: newUserName,
-          },
-        },
-      ];
-      // console.log("Updated comments: ", updatedComments);
-      setCommentsData(updatedComments);
-      setNewComment("");
-      setNewUserName("");
+  const onAddComment = async (addedComment) => {
+    console.log("added comment", addedComment);
+    console.log("post id", post.id);
+    try {
+      const response = await fetch("https://dummyjson.com/comments/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          body: addedComment.body,
+          postId: parseInt(post.id),
+          userId: 10,
+        }),
+      });
+
+      const newComments = await response.json();
+      console.log("new: ", newComments);
+      setCommentsData([...commentsData, newComments]);
+    } catch (error) {
+      console.log("Error while adding comment....");
     }
   };
 
@@ -93,22 +96,24 @@ const Comments = () => {
         </div>
 
         <div>
-          {commentsData.map((comment, index) => (
-            <div key={index} className="container-fluid d-flex flex-column">
-              <div className="mt-2 border border-dark p-3 d-flex justify-content-between">
-                <span className="d-flex align-items-center gap-2">
-                  <FaComment />
-                  {comment.body}
-                </span>
-                <span className="d-flex align-items-center gap-2">
-                  <FaUser />
-                  {comment.user.username}
-                </span>
+          {commentsData &&
+            commentsData.map((comment, index) => (
+              <div key={index} className="container-fluid d-flex flex-column">
+                <div className="mt-2 border border-dark p-3 d-flex justify-content-between">
+                  <span className="d-flex align-items-center gap-2">
+                    <FaComment />
+                    {comment.body}
+                  </span>
+                  <span className="d-flex align-items-center gap-2">
+                    <FaUser />
+                    {comment.user.username}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
+      <AddComment onAddComment={onAddComment} />
     </div>
   );
 };
