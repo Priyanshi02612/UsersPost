@@ -9,21 +9,25 @@ const AddPost = ({ onAddPost, disable }) => {
   };
 
   return (
-    <div className="container post-container text-center my-5 border border-dark">
+    <div className="container post-container text-center my-5 border">
       <>
         <input
           className="form-control mt-3 "
           type="text"
           value={newPostData.title}
           placeholder="Add post title..."
-          onChange={(e) => setNewPostData({ title: e.target.value })}
+          onChange={(e) =>
+            setNewPostData({ ...newPostData, title: e.target.value })
+          }
         />
         <input
           className="form-control mt-3 "
           type="text"
           value={newPostData.body}
           placeholder="Add post..."
-          onChange={(e) => setNewPostData({ body: e.target.value })}
+          onChange={(e) =>
+            setNewPostData({ ...newPostData, body: e.target.value })
+          }
         />
       </>
       <button
