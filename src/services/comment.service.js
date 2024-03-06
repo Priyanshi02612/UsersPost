@@ -12,3 +12,16 @@ export const onAddNewComment = async (addedComment, postId) => {
   const newComments = await response.json();
   return newComments;
 };
+
+//Delete comment by id
+export const handleDeleteCommentById = async (commentId) => {
+  const responseDeleteComment = await fetch(
+    `https://dummyjson.com/comments/${commentId}`,
+    {
+      method: "DELETE",
+    }
+  );
+
+  const deletedComment = await responseDeleteComment.json();
+  return deletedComment;
+};

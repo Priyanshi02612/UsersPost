@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaUser } from "react-icons/fa6";
-import { FaComment } from "react-icons/fa6";
+import { FaUser, FaComment, FaTrash } from "react-icons/fa6";
 import AddComment from "./AddComment";
 import { getPostsCommentsByPostId } from "../services/post.service";
-import { onAddNewComment } from "../services/comment.service";
+import {
+  handleDeleteCommentById,
+  onAddNewComment,
+} from "../services/comment.service";
 
 const PostDetails = () => {
   const [comments, setComments] = useState([]);
@@ -22,7 +24,7 @@ const PostDetails = () => {
       try {
         const postsComments = await getPostsCommentsByPostId(post.id);
         setComments(postsComments);
-        console.log(postsComments);
+        // console.log(comments);
       } catch (error) {
         setError("Error fetching comment data...");
         console.error(error);
@@ -42,6 +44,24 @@ const PostDetails = () => {
     } catch (error) {
       setError("Error while adding comment...");
       console.error(error);
+    }
+  };
+
+  const onDeleteComment = async (id) => {
+    const confirmMessage = window.confirm(
+      "Are you sure to delete selected comment?"
+    );
+
+    if (confirmMessage) {
+      try {
+        await handleDeleteCommentById(id);
+        const remainingComments = comments.filter(
+          (comment) => comment.id !== id
+        );
+        setComments(remainingComments);
+      } catch (error) {
+        setError("Error while deleting comment...");
+      }
     }
   };
 
@@ -104,9 +124,14 @@ const PostDetails = () => {
                     <FaComment />
                     {comment.body}
                   </span>
-                  <span className="d-flex align-items-center gap-2">
-                    <FaUser />
-                    {comment.user.username}
+                  <span className="d-flex align-items-center gap-1">
+                    <span className="d-flex align-items-center gap-2 me-2">
+                      <FaUser />
+                      {comment.user.username}
+                    </span>
+                    <span className="d-flex align-items-center">
+                      <FaTrash onClick={() => onDeleteComment(comment.id)} />
+                    </span>
                   </span>
                 </div>
               </div>
