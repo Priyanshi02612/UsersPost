@@ -3,6 +3,7 @@ import { FaEnvelope } from "react-icons/fa6";
 import { FaPhone } from "react-icons/fa6";
 import { FaUser } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
+import { getAllUsers } from "../services/user.service";
 
 const Users = () => {
   const [usersData, setUsersData] = useState([]);
@@ -11,21 +12,25 @@ const Users = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchedUserData = async () => {
+    const fetchUsersData = async () => {
       setIsLoading(true);
+
       try {
-        const responseUser = await fetch("https://dummyjson.com/users");
-        const usersRes = await responseUser.json();
-        const usersData = usersRes.users || [];
-        setUsersData(usersData);
+        const fetchedUsers = await getAllUsers();
+        setUsersData(fetchedUsers);
       } catch (error) {
-        console.log("Error: ", error);
-        setError(error);
+        setError("Error while fetching users....: ");
+        console.log(error);
       }
       setIsLoading(false);
     };
-    fetchedUserData();
+
+    fetchUsersData();
   }, []);
+
+  const navigateToUserDetails = (userdata) => {
+    navigate(`/user/${userdata.id}`, { state: { userdata } });
+  };
 
   if (isLoading) {
     return (
@@ -59,9 +64,6 @@ const Users = () => {
     );
   }
 
-  const navigateToUserDetails = (userdata) => {
-    navigate(`/user/${userdata.id}`, { state: { userdata } });
-  };
   return (
     <div className="container-fluid">
       <div className="container-fluid w-75">

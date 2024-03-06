@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const UserInfo = () => {
-  const navigate = useNavigate();
+  const navigateToUser = useNavigate();
   const location = useLocation();
   const user = location.state.userdata;
 
@@ -141,7 +141,10 @@ const UserInfo = () => {
           </div>
         </div>
         <div className=" my-4 text-center">
-          <button className="btn h-50 btn-primary" onClick={() => navigate(-1)}>
+          <button
+            className="btn h-50 btn-primary"
+            onClick={() => navigateToUser(-1)}
+          >
             Back to users
           </button>
         </div>

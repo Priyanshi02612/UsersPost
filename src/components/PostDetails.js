@@ -3,32 +3,47 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { FaUser } from "react-icons/fa6";
 import { FaComment } from "react-icons/fa6";
 import AddComment from "./AddComment";
+import { getPostsCommentsByPostId } from "../services/post.service";
+import { onAddNewComment } from "../services/comment.service";
 
-const Comments = () => {
-  const [commentsData, setCommentsData] = useState([]);
+const PostDetails = () => {
+  const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigatePost = useNavigate();
+  const [error, setError] = useState();
+  const [disable, setDisable] = useState(false);
+  const navigateToPost = useNavigate();
   const location = useLocation();
   const { post } = location.state || {};
 
   useEffect(() => {
-    const fetchedCommentData = async () => {
+    const fetchPostsComments = async () => {
       setLoading(true);
+
       try {
-        const response = await fetch(
-          "https://dummyjson.com/comments/post/" + post.id
-        );
-        const commentsArray = await response.json();
-        setCommentsData(commentsArray.comments);
+        const postsComments = await getPostsCommentsByPostId(post.id);
+        setComments(postsComments);
+        console.log(postsComments);
       } catch (error) {
-        console.error("Error fetching comment data:", error);
+        setError("Error fetching comment data...");
+        console.error(error);
       }
       setLoading(false);
     };
 
-    fetchedCommentData();
+    fetchPostsComments();
   }, []);
-  // console.log(commentsData);
+
+  const onAddComment = async (addedComment) => {
+    try {
+      setDisable(true);
+      const newComment = await onAddNewComment(addedComment, post.id);
+      setComments([...comments, newComment]);
+      setDisable(false);
+    } catch (error) {
+      setError("Error while adding comment...");
+      console.error(error);
+    }
+  };
 
   if (loading) {
     return (
@@ -54,52 +69,37 @@ const Comments = () => {
     );
   }
 
-  const onAddComment = async (addedComment) => {
-    console.log("added comment", addedComment);
-    console.log("post id", post.id);
-    try {
-      const response = await fetch("https://dummyjson.com/comments/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          body: addedComment.body,
-          postId: parseInt(post.id),
-          userId: 10,
-        }),
-      });
-
-      const newComments = await response.json();
-      console.log("new: ", newComments);
-      setCommentsData([...commentsData, newComments]);
-    } catch (error) {
-      console.log("Error while adding comment....");
-    }
-  };
+  if (error) {
+    return (
+      <div className="container-fluid">
+        <div>{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">
       <div className="container-fluid my-5 comments-container d-flex flex-column p-3">
-        <div>
+        <>
           <div className="d-flex justify-content-between mt-3">
             <h3>
               {post.id}. {post.title}
             </h3>
             <button
               className="btn h-50 btn-primary"
-              onClick={() => navigatePost(-1)}
+              onClick={() => navigateToPost(-1)}
             >
               Back to posts
             </button>
           </div>
           <p className="mt-4">{post.body}</p>
-          <h3>Comments</h3>
-        </div>
-
-        <div>
-          {commentsData &&
-            commentsData.map((comment, index) => (
+        </>
+        {comments.length > 0 ? (
+          <>
+            <h3>Comments</h3>
+            {comments.map((comment, index) => (
               <div key={index} className="container-fluid d-flex flex-column">
-                <div className="mt-2 border border-dark p-3 d-flex justify-content-between">
+                <div className="mt-2 border border-light p-3 d-flex justify-content-between">
                   <span className="d-flex align-items-center gap-2">
                     <FaComment />
                     {comment.body}
@@ -111,11 +111,17 @@ const Comments = () => {
                 </div>
               </div>
             ))}
-        </div>
+          </>
+        ) : (
+          <>
+            <hr />
+            <div className="h3 text-center">No comments!</div>
+          </>
+        )}
       </div>
-      <AddComment onAddComment={onAddComment} />
+      <AddComment onAddComment={onAddComment} disable={disable} />
     </div>
   );
 };
 
-export default Comments;
+export default PostDetails;

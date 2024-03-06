@@ -1,29 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AddPost from "./AddPost";
+import { OnAddNewPost, getAllPosts } from "../services/post.service";
+import { getAllUsers } from "../services/user.service";
 
 const Posts = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [posts, setPosts] = useState([]);
   const [error, setError] = useState();
-  const navigateComments = useNavigate();
+  const [disable, setDisable] = useState(false);
+  const [posts, setPosts] = useState([]);
+  const navigateToPostDetails = useNavigate();
 
   useEffect(() => {
-    const fetchedPostData = async () => {
+    const fetchPostData = async () => {
       setIsLoading(true);
-      try {
-        const responsePost = await fetch("https://dummyjson.com/posts?limit=150");
-        const responseUser = await fetch("https://dummyjson.com/users?limit=100");
-        const data = await responsePost.json();
-        const usersRes = await responseUser.json();
-        const users = usersRes.users || [];
 
-        const fetchedPosts = (data.posts || []).map((post) => {
-          const user = users.find((user) => user.id === post.userId);
+      try {
+        const postsList = await getAllPosts();
+        const usersList = await getAllUsers();
+
+        const fetchedPosts = (postsList || []).map((post) => {
+          const fetchedUser = usersList.find((user) => user.id === post.userId);
 
           return {
             ...post,
-            username: user?.username,
+            username: fetchedUser?.username,
           };
         });
 
@@ -36,30 +37,22 @@ const Posts = () => {
       setIsLoading(false);
     };
 
-    fetchedPostData();
+    fetchPostData();
   }, []);
 
-  const navigateCommentBox = (post) => {
-    navigateComments(`/post/post:${post.id}`, { state: { post } });
+  const navigateToPostComments = (post) => {
+    navigateToPostDetails(`/post/post:${post.id}`, { state: { post } });
   };
 
   const onAddPost = async (newPostDetails) => {
-    console.log("post details:",newPostDetails)
     try {
-      const responseNewPost = await fetch("https://dummyjson.com/posts/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: newPostDetails.title,
-          body: newPostDetails.body,
-          userId: 5,
-        }),
-      });
-
-      const newPostData = await responseNewPost.json();
-      setPosts([...posts, newPostData]);
+      setDisable(true);
+      const addedNewPost = await OnAddNewPost(newPostDetails);
+      setPosts([...posts, addedNewPost]);
+      setDisable(false);
     } catch (error) {
-      console.log("Error while adding post.... ", error);
+      setError("Error while adding post...");
+      console.log(error);
     }
   };
 
@@ -96,13 +89,17 @@ const Posts = () => {
   }
 
   return (
-    <div>
+    <>
+      <div className="text-end p-2">
+        <a href="#addPostInput">Add Post</a>
+      </div>
+
       <div className="container-fluid">
         {posts.map((post, index) => (
           <div
             key={index}
             className="container-fluid my-4 d-flex flex-column p-3 post-container"
-            onClick={() => navigateCommentBox(post)}
+            onClick={() => navigateToPostComments(post)}
           >
             <h3>
               {post.id}. {post.title}
@@ -115,10 +112,15 @@ const Posts = () => {
           </div>
         ))}
       </div>
-      <div>
-        <AddPost onAddPost={onAddPost} />
+
+      <div id="addPostInput">
+        <AddPost onAddPost={onAddPost} disable={disable} />
       </div>
-    </div>
+
+      <div className="text-end p-2">
+        <a href="#topOfThePage">Go to top</a>
+      </div>
+    </>
   );
 };
 
