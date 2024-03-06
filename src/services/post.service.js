@@ -1,6 +1,6 @@
 // Get all posts
 export const getAllPosts = async () => {
-  const responseOfPosts = await fetch("https://dummyjson.com/posts");
+  const responseOfPosts = await fetch("https://dummyjson.com/posts?limit=150");
   const postsData = await responseOfPosts.json();
   return postsData.posts;
 };
@@ -26,6 +26,7 @@ export const OnAddNewPost = async (newPostDetails) => {
     }),
   });
   const newPost = await responseNewPost.json();
+  newPost.username = "piuspamm0";
   console.log(newPost);
   return newPost;
 };
