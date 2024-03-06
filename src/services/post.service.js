@@ -30,3 +30,20 @@ export const OnAddNewPost = async (newPostDetails) => {
   console.log(newPost);
   return newPost;
 };
+
+//Delete post by post id
+export const handleDeletePostById = async (postId) => {
+  const responseDeletePost = await fetch(
+    `https://dummyjson.com/posts/${postId}`,
+    {
+      method: "PUT" /* or PATCH */,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "I think I should shift to the moon",
+      }),
+    }
+  );
+
+  const deletedPost = await responseDeletePost.json();
+  return deletedPost;
+};

@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AddPost from "./AddPost";
-import { OnAddNewPost, getAllPosts } from "../services/post.service";
+import {
+  OnAddNewPost,
+  getAllPosts,
+  handleDeletePostById,
+} from "../services/post.service";
 import { getAllUsers } from "../services/user.service";
+import { FaTrash } from "react-icons/fa6";
 
 const Posts = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -56,6 +61,24 @@ const Posts = () => {
     }
   };
 
+  const onDeletePost = async (e, id) => {
+    e.stopPropagation();
+
+    const confirmMessage = window.confirm(
+      "Are you sure to delete selected post?"
+    );
+
+    if (confirmMessage) {
+      try {
+        await handleDeletePostById(id);
+        const remainingPosts = posts.filter((post) => post.id !== id);
+        setPosts(remainingPosts);
+      } catch (error) {
+        setError("Error while deleting comment...");
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container-fluid">
@@ -90,10 +113,6 @@ const Posts = () => {
 
   return (
     <>
-      <div className="text-end p-2">
-        <a href="#addPostInput">Add Post</a>
-      </div>
-
       <div className="container-fluid">
         {posts.map((post, index) => (
           <div
@@ -101,9 +120,14 @@ const Posts = () => {
             className="container-fluid my-4 d-flex flex-column p-3 post-container"
             onClick={() => navigateToPostComments(post)}
           >
-            <h3>
-              {post.id}. {post.title}
-            </h3>
+            <div className="d-flex align-items-center justify-content-between">
+              <h3>
+                {post.id}. {post.title}
+              </h3>
+              <span className="d-flex align-items-center">
+                <FaTrash onClick={(e) => onDeletePost(e, post.id)} />
+              </span>
+            </div>
             <hr />
             <p>{post.body}</p>
             <p className="align-self-end">
@@ -117,8 +141,10 @@ const Posts = () => {
         <AddPost onAddPost={onAddPost} disable={disable} />
       </div>
 
-      <div className="text-end p-2">
-        <a href="#topOfThePage">Go to top</a>
+      <div className="text-end position-sticky bottom-0 bg-light p-2">
+        <a href="#topOfThePage" className="go-top">
+          Go to top
+        </a>
       </div>
     </>
   );
