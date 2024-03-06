@@ -1,32 +1,44 @@
 import React, { useEffect, useState } from "react";
-import { FaEnvelope } from "react-icons/fa6";
+import { FaEnvelope, FaSearchengin } from "react-icons/fa6";
 import { FaPhone } from "react-icons/fa6";
 import { FaUser } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
-import { getAllUsers } from "../services/user.service";
+import { getAllUsers, handleSearchUser } from "../services/user.service";
 
 const Users = () => {
   const [usersData, setUsersData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState();
+  const [searchValue, setSearchValue] = useState("");
   const navigate = useNavigate();
+
+  const onSearchUsers = (users) => {
+    // try {
+    //   await handleSearchUser();
+      const user = users.filter((user) =>
+        user.firstName.toLowerCase().includes(searchValue)
+      );
+      return user;
+    // } catch (e) {
+    //   console.log("error");
+    // }
+  };
 
   useEffect(() => {
     const fetchUsersData = async () => {
-      setIsLoading(true);
-
       try {
         const fetchedUsers = await getAllUsers();
-        setUsersData(fetchedUsers);
+        setUsersData(onSearchUsers(fetchedUsers));
+        setIsLoading(false);
       } catch (error) {
+        setIsLoading(false);
         setError("Error while fetching users....: ");
         console.log(error);
       }
-      setIsLoading(false);
     };
 
     fetchUsersData();
-  }, []);
+  }, [searchValue]);
 
   const navigateToUserDetails = (userdata) => {
     navigate(`/user/${userdata.id}`, { state: { userdata } });
@@ -58,7 +70,7 @@ const Users = () => {
 
   if (error) {
     return (
-      <div className="container mt-5 pt-5">
+      <div className="container-fluid mt-5 pt-5">
         <h2 className="text-center">Error while fetching details....</h2>
       </div>
     );
@@ -66,11 +78,19 @@ const Users = () => {
 
   return (
     <div className="container-fluid">
-      <div className="container-fluid w-75">
+      <div className="cotainer-fluid d-flex align-items-center gap-2">
+        <input
+          type="text"
+          className="form-control my-3"
+          placeholder="Search user..."
+          onChange={(e) => setSearchValue(e.target.value)}
+        />
+      </div>
+      <div className="container-fluid d-flex flex-column justify-content-center">
         {usersData.map((user, index) => (
           <div
             key={index}
-            className="container-fluid user-container row p-2 my-4"
+            className="container-fluid user-container d-flex p-2 my-4"
           >
             <span className="col-2 d-flex align-items-center justify-content-center">
               <img
