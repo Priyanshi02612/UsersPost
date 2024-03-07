@@ -20,6 +20,13 @@ const UsersToDo = () => {
     getUsersTodo();
   }, []);
 
+  const handleCheckboxChange = (index) => {
+    const updatedList = usersToDoList.map((todoData, i) =>
+      i === index ? { ...todoData, completed: true } : todoData
+    );
+    setUsersToDoList(updatedList);
+  };
+
   return (
     <div className="container my-5 p-3 user-info">
       <div className=" my-4 text-end">
@@ -30,41 +37,57 @@ const UsersToDo = () => {
           Back to users
         </button>
       </div>
-      <div className="container-fluid">
-        <h3 className="text-center">~ User's Todo List ~</h3>
-        <div className="container">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Sr.No.</th>
-                <th>ToDo</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            {usersToDoList.map((todo, index) => (
-              <tbody>
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>{todo.todo}</td>
-                  {todo.completed ? (
-                    <td className=" " style={{ color: "green" }}>
-                      Completed
-                    </td>
-                  ) : (
-                    <td className="d-flex gap-3" style={{ color: "red" }}>
-                      <input
-                        className="form-check checkbox"
-                        type="checkbox"
-                      />
-                      Pending
-                    </td>
-                  )}
-                </tr>
-              </tbody>
-            ))}
-          </table>
-        </div>
-      </div>
+
+      <h3 className="text-center">~ User's Todo List ~</h3>
+
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Sr.No.</th>
+            <th>ToDo</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {usersToDoList.map((todo, index) => (
+            <tr key={index}>
+              <td>{index + 1}</td>
+              <td>{todo.todo}</td>
+              <td
+                className="d-flex gap-2"
+                style={{ color: todo.completed ? "green" : "red" }}
+              >
+                {todo.completed ? (
+                  <>
+                    <input
+                      id="checkbox"
+                      className="form-check-input checkbox"
+                      type="checkbox"
+                      checked={true}
+                      disabled
+                    />
+                    Completed
+                  </>
+                ) : (
+                  <label
+                    for="checkbox"
+                    className="form-check-label d-flex gap-2"
+                  >
+                    <input
+                      id="checkbox"
+                      className="form-check-input checkbox"
+                      type="checkbox"
+                      checked={false}
+                      onChange={() => handleCheckboxChange(index)}
+                    />
+                    Pending
+                  </label>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
