@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { FaEnvelope, FaSearchengin } from "react-icons/fa6";
+import React, { useState } from "react";
+import { FaEnvelope } from "react-icons/fa6";
 import { FaPhone } from "react-icons/fa6";
 import { FaUser } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
-import { getAllUsers, handleSearchUser } from "../services/user.service";
+import { getAllUsers } from "../services/user.service";
+import useFetchData from "../hooks/useFetchData";
 
 const Users = () => {
-  const [usersData, setUsersData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState();
   const [searchValue, setSearchValue] = useState("");
   const navigate = useNavigate();
+  const { isLoading, error, data: usersData } = useFetchData(getAllUsers);
 
   const onSearchUsers = (users) => {
     // try {
@@ -24,24 +23,12 @@ const Users = () => {
     // }
   };
 
-  useEffect(() => {
-    const fetchUsersData = async () => {
-      try {
-        const fetchedUsers = await getAllUsers();
-        setUsersData(onSearchUsers(fetchedUsers));
-        setIsLoading(false);
-      } catch (error) {
-        setIsLoading(false);
-        setError("Error while fetching users....: ");
-        console.log(error);
-      }
-    };
-
-    fetchUsersData();
-  }, [searchValue]);
-
   const navigateToUsersToDo = (userdata) => {
     navigate(`/user/${userdata.id}`, { state: { userdata } });
+  };
+
+  const navigateToUsersCart = (userdata) => {
+    navigate(`/user/${userdata.id}/carts`, { state: { userdata } });
   };
 
   if (isLoading) {
@@ -111,12 +98,18 @@ const Users = () => {
               <FaEnvelope /> {user.email}
             </span>
 
-            <span className="d-flex align-items-center justify-content-center col">
+            <span className="d-flex flex-column gap-3 align-items-center justify-content-center col">
               <button
                 className="btn w-50 btn-primary user-details"
                 onClick={() => navigateToUsersToDo(user)}
               >
                 My Todo(s)
+              </button>
+              <button
+                className="btn w-50 btn-primary user-details"
+                onClick={() => navigateToUsersCart(user)}
+              >
+                My Cart(s)
               </button>
             </span>
           </div>

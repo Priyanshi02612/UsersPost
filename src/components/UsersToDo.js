@@ -1,31 +1,50 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getUsersToDoById } from "../services/user.service";
+import useFetchData from "../hooks/useFetchData";
 
 const UsersToDo = () => {
   const navigateToUser = useNavigate();
   const location = useLocation();
   const user = location.state.userdata;
-  const [usersToDoList, setUsersToDoList] = useState([]);
+  const {
+    isLoading,
+    error,
+    data: usersToDoList,
+    handleButtonChange: handleCheckboxChange,
+  } = useFetchData(getUsersToDoById, user.id);
 
-  useEffect(() => {
-    const getUsersTodo = async () => {
-      try {
-        const todoListData = await getUsersToDoById(user.id);
-        setUsersToDoList(todoListData);
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    getUsersTodo();
-  }, []);
-
-  const handleCheckboxChange = (index) => {
-    const updatedList = usersToDoList.map((todoData, i) =>
-      i === index ? { ...todoData, completed: true } : todoData
+  if (isLoading) {
+    return (
+      <div className="container-fluid">
+        <div className="text-center">
+          <span
+            className="spinner-grow spinner-grow-sm mx-2"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          <span
+            className="spinner-grow spinner-grow-sm mx-2"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          <span
+            className="spinner-grow spinner-grow-sm mx-2"
+            role="status"
+            aria-hidden="true"
+          ></span>
+        </div>
+      </div>
     );
-    setUsersToDoList(updatedList);
-  };
+  }
+
+  if (error) {
+    return (
+      <div className="container-fluid mt-5 pt-5">
+        <h2 className="text-center">Error while fetching details....</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="container my-5 p-3 user-info">
