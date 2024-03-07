@@ -22,13 +22,8 @@ const useFetchData = (fetchFunction, params) => {
     fetchData();
   }, [fetchFunction, params]);
 
-  const handleButtonChange = (index) => {
-    const updatedData = data.map((todoData, i) =>
-      i === index ? { ...todoData, completed: true } : todoData
-    );
-    setData(updatedData);
-  };
-  return { isLoading, error, data, handleButtonChange };
+  
+  return { isLoading, error, data, setData };
 };
 
 export default useFetchData;

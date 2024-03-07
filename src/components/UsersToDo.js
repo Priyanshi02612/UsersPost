@@ -11,8 +11,15 @@ const UsersToDo = () => {
     isLoading,
     error,
     data: usersToDoList,
-    handleButtonChange: handleCheckboxChange,
+    setData: setUsersToDoList
   } = useFetchData(getUsersToDoById, user.id);
+
+  const handleCheckboxChange = (index) => {
+    const updatedData = usersToDoList.map((todoData, i) =>
+      i === index ? { ...todoData, completed: true } : todoData
+    );
+    setUsersToDoList(updatedData);
+  };
 
   if (isLoading) {
     return (
