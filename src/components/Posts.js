@@ -4,46 +4,33 @@ import AddPost from "./AddPost";
 import {
   OnAddNewPost,
   getAllPosts,
-  handleDeletePostById,
+  handleDeletePostById
 } from "../services/post.service";
-import { getAllUsers } from "../services/user.service";
 import { FaTrash } from "react-icons/fa6";
+import useFetchData from "../hooks/useFetchData";
+import { getAllUsers } from "../services/user.service";
 
 const Posts = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState();
   const [disable, setDisable] = useState(false);
-  const [posts, setPosts] = useState([]);
   const navigateToPostDetails = useNavigate();
+  const {
+    isLoading,
+    error,
+    data: postsList,
+    setData: setPosts,
+  } = useFetchData(getAllPosts);
+  const { data: usersList } = useFetchData(getAllUsers);
 
   useEffect(() => {
-    const fetchPostData = async () => {
-      setIsLoading(true);
-
-      try {
-        const postsList = await getAllPosts();
-        const usersList = await getAllUsers();
-
-        const fetchedPosts = (postsList || []).map((post) => {
-          const fetchedUser = usersList.find((user) => user.id === post.userId);
-
-          return {
-            ...post,
-            username: fetchedUser?.username,
-          };
-        });
-
-        setPosts(fetchedPosts);
-      } catch (error) {
-        console.error("Error fetching post data: ", error);
-        setError("Error while loading posts");
-      }
-
-      setIsLoading(false);
-    };
-
-    fetchPostData();
-  }, []);
+    const fetchedPosts = (postsList || []).map((post) => {
+      const fetchedUser = usersList.find((user) => user.id === post.userId);
+      return {
+        ...post,
+        username: fetchedUser?.username,
+      };
+    });
+    setPosts(fetchedPosts);
+  }, [usersList]);
 
   const navigateToPostComments = (post) => {
     navigateToPostDetails(`/post/post:${post.id}`, { state: { post } });
@@ -53,10 +40,9 @@ const Posts = () => {
     try {
       setDisable(true);
       const addedNewPost = await OnAddNewPost(newPostDetails);
-      setPosts([...posts, addedNewPost]);
+      setPosts([...postsList, addedNewPost]);
       setDisable(false);
     } catch (error) {
-      setError("Error while adding post...");
       console.log(error);
     }
   };
@@ -71,10 +57,10 @@ const Posts = () => {
     if (confirmMessage) {
       try {
         await handleDeletePostById(id);
-        const remainingPosts = posts.filter((post) => post.id !== id);
+        const remainingPosts = postsList.filter((post) => post.id !== id);
         setPosts(remainingPosts);
       } catch (error) {
-        setError("Error while deleting comment...");
+        console.log(error);
       }
     }
   };
@@ -113,8 +99,11 @@ const Posts = () => {
 
   return (
     <>
+      <div className="text-end">
+        <a href="#addPostInput">Add Post</a>
+      </div>
       <div className="container-fluid">
-        {posts.map((post, index) => (
+        {postsList.map((post, index) => (
           <div
             key={index}
             className="container-fluid my-4 d-flex flex-column p-3 post-container"

@@ -7,33 +7,19 @@ import {
   handleDeleteCommentById,
   onAddNewComment,
 } from "../services/comment.service";
+import useFetchData from "../hooks/useFetchData";
 
 const PostDetails = () => {
-  const [comments, setComments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState();
   const [disable, setDisable] = useState(false);
   const navigateToPost = useNavigate();
   const location = useLocation();
   const { post } = location.state || {};
-
-  useEffect(() => {
-    const fetchPostsComments = async () => {
-      setLoading(true);
-
-      try {
-        const postsComments = await getPostsCommentsByPostId(post.id);
-        setComments(postsComments);
-        // console.log(comments);
-      } catch (error) {
-        setError("Error fetching comment data...");
-        console.error(error);
-      }
-      setLoading(false);
-    };
-
-    fetchPostsComments();
-  }, []);
+  const {
+    isLoading,
+    error,
+    data: comments,
+    setData: setComments,
+  } = useFetchData(getPostsCommentsByPostId, post.id);
 
   const onAddComment = async (addedComment) => {
     try {
@@ -42,7 +28,6 @@ const PostDetails = () => {
       setComments([...comments, newComment]);
       setDisable(false);
     } catch (error) {
-      setError("Error while adding comment...");
       console.error(error);
     }
   };
@@ -60,12 +45,12 @@ const PostDetails = () => {
         );
         setComments(remainingComments);
       } catch (error) {
-        setError("Error while deleting comment...");
+        console.log(error)
       }
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="container">
         <div className="text-center">
