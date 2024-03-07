@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getUsersToDoById } from "../services/user.service";
 
-const UserInfo = () => {
+const UsersToDo = () => {
   const navigateToUser = useNavigate();
   const location = useLocation();
   const user = location.state.userdata;
@@ -69,4 +69,4 @@ const UserInfo = () => {
   );
 };
 
-export default UserInfo;
+export default UsersToDo;

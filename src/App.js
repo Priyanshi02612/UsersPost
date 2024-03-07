@@ -4,18 +4,18 @@ import Header from "./components/Header";
 import Posts from "./components/Posts";
 import PostDetails from "./components/PostDetails";
 import Users from "./components/Users";
-import UserInfo from "./components/UserInfo";
+import UsersToDo from "./components/UsersToDo";
 
 function App() {
   return (
-    <div className="container-fluid" id="topOfThePage">
+    <div className="container-fluid p-0" id="topOfThePage">
       <BrowserRouter>
         <Header />
         <Routes>
           <Route path="/" element={<Posts />} />
           <Route path="/users" element={<Users />} />
           <Route path="/post/:postId" element={<PostDetails />} />
-          <Route path="/user/:userId" element={<UserInfo />} />
+          <Route path="/user/:userId" element={<UsersToDo />} />
         </Routes>
       </BrowserRouter>
     </div>

@@ -15,10 +15,10 @@ const Users = () => {
   const onSearchUsers = (users) => {
     // try {
     //   await handleSearchUser();
-      const user = users.filter((user) =>
-        user.firstName.toLowerCase().includes(searchValue)
-      );
-      return user;
+    const user = users.filter((user) =>
+      user.firstName.toLowerCase().includes(searchValue)
+    );
+    return user;
     // } catch (e) {
     //   console.log("error");
     // }
@@ -40,7 +40,7 @@ const Users = () => {
     fetchUsersData();
   }, [searchValue]);
 
-  const navigateToUserDetails = (userdata) => {
+  const navigateToUsersToDo = (userdata) => {
     navigate(`/user/${userdata.id}`, { state: { userdata } });
   };
 
@@ -114,9 +114,9 @@ const Users = () => {
             <span className="d-flex align-items-center justify-content-center col">
               <button
                 className="btn w-50 btn-primary user-details"
-                onClick={() => navigateToUserDetails(user)}
+                onClick={() => navigateToUsersToDo(user)}
               >
-                User details
+                My Todo(s)
               </button>
             </span>
           </div>
