@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaEnvelope } from "react-icons/fa6";
 import { FaPhone } from "react-icons/fa6";
 import { FaUser } from "react-icons/fa6";
@@ -9,19 +9,28 @@ import useFetchData from "../hooks/useFetchData";
 const Users = () => {
   const [searchValue, setSearchValue] = useState("");
   const navigate = useNavigate();
-  const { isLoading, error, data: usersData } = useFetchData(getAllUsers);
+  const {
+    isLoading,
+    error,
+    data: usersData,
+    setData: setUsersData,
+  } = useFetchData(getAllUsers);
 
-  const onSearchUsers = (users) => {
-    // try {
-    //   await handleSearchUser();
-    const user = users.filter((user) =>
-      user.firstName.toLowerCase().includes(searchValue)
-    );
-    return user;
-    // } catch (e) {
-    //   console.log("error");
-    // }
-  };
+  useEffect(() => {
+    const onSearchUsers = async () => {
+      try {
+        const filteredUsers = usersData.filter((user) =>
+          user.firstName.toLowerCase().includes(searchValue)
+        );
+        setUsersData([...filteredUsers]);
+      } catch (e) {
+        console.log("error");
+      }
+    };
+
+    onSearchUsers();
+    console.log(usersData)
+  }, [searchValue]);
 
   const navigateToUsersToDo = (userdata) => {
     navigate(`/user/${userdata.id}`, { state: { userdata } });

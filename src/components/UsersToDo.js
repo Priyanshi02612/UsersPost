@@ -11,7 +11,7 @@ const UsersToDo = () => {
     isLoading,
     error,
     data: usersToDoList,
-    setData: setUsersToDoList
+    setData: setUsersToDoList,
   } = useFetchData(getUsersToDoById, user.id);
 
   const handleCheckboxChange = (index) => {
@@ -95,10 +95,7 @@ const UsersToDo = () => {
                     Completed
                   </>
                 ) : (
-                  <label
-                    for="checkbox"
-                    className="form-check-label d-flex gap-2"
-                  >
+                  <div className="d-flex gap-2">
                     <input
                       id="checkbox"
                       className="form-check-input checkbox"
@@ -107,7 +104,7 @@ const UsersToDo = () => {
                       onChange={() => handleCheckboxChange(index)}
                     />
                     Pending
-                  </label>
+                  </div>
                 )}
               </td>
             </tr>
